@@ -6,8 +6,9 @@ pub struct ArbitraryRequest(pub http::request::Request<()>);
 pub struct RequestStrategy;
 #[derive(Debug,Clone)]
 pub struct RequestValueTree ( TupleValueTree <(
-    crate::uri::UriValueTree,
+    super::uri::UriValueTree,
     MethodValueTree,
+    super::header::HeaderMapValueTree,
 )>);
 
 
@@ -29,6 +30,7 @@ impl Strategy for RequestStrategy {
             <(
                 ArbitraryUri,
                 ArbitraryMethod,
+                ArbitraryHeaderMap,
             )>::arbitrary().new_tree(runner)?
         ))
     }
@@ -38,9 +40,14 @@ impl ValueTree for RequestValueTree {
 
     fn current(&self) -> Self::Value {
         let mut b = http::request::Builder::default();
-        let (ArbitraryUri(u), ArbitraryMethod(m)) = self.0.current();
+        let (
+            ArbitraryUri(u),
+            ArbitraryMethod(m),
+            ArbitraryHeaderMap(h),
+        ) = self.0.current();
         b.uri(u);
         b.method(m);
+        *b.headers_mut().unwrap() = h;
         ArbitraryRequest(b.body(()).unwrap())
     }
 
