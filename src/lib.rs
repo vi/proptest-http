@@ -1,12 +1,20 @@
-#![allow(unused)]
-#![warn(unused_must_use)]
+#![forbid(unsafe_code)]
+
+//! This crate contains the code to generate random-ish `http` objects:
+//! urls, requests, headers, responses
+//! 
+//! It is rather simple and straightforward:
+//! most things are just chosen from a static list
+//! 
+//! To be useful for your project, you may want to fork it and
+//! modify the arrays.
+
 pub extern crate http;
 pub extern crate proptest;
 
 use proptest::arbitrary::Arbitrary;
 use proptest::strategy::{Strategy,NewTree,ValueTree};
 use proptest::test_runner::TestRunner;
-use proptest::prelude::RngCore;
 use proptest::sample::{Index,IndexValueTree};
 use proptest::bool::{weighted,BoolValueTree};
 use proptest::tuple::TupleValueTree;
