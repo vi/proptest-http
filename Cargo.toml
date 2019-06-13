@@ -6,8 +6,9 @@ edition = "2018"
 repository = "https://github.com/vi/proptest-http"
 description = "impl proptest::Arbitrary for http::{Request,Response,Uri}"
 keywords = ["http", "proptest", "random", "arbitrary", "quickcheck"]
-categories = ["testing", "web-programming"]
+categories = ["development-tools::testing", "web-programming"]
 license = "MIT/Apache-2.0"
+readme = "README.md"
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
