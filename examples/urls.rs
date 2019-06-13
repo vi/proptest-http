@@ -2,12 +2,20 @@ extern crate proptest;
 extern crate proptest_http;
 
 use proptest::strategy::{Strategy, ValueTree};
+use proptest::arbitrary::Arbitrary;
 
 fn main() {
     let mut r = proptest::test_runner::TestRunner::default();
-
+    
     for _ in 0..10 {
-        let u = proptest_http::UriStrategy.new_tree(&mut r).unwrap();
-        println!("{}", u.current().0);
+        let mut u = proptest_http::ArbitraryUri::arbitrary().new_tree(&mut r).unwrap();
+        for _ in 0..10 {
+            println!("{} ", u.current().0);
+            u.simplify();
+            //if u.current().0.into_parts().scheme.is_none() {
+            //    u.complicate();
+            //}
+        }
+        println!()
     }
 }
