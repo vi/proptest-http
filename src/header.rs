@@ -56,7 +56,7 @@ impl ValueTree for HeaderMapValueTree {
 
 // ----------------------------
 
-const HEADER_NAMES : [http::header::HeaderName; 11] = [
+const HEADER_NAMES : [http::header::HeaderName; 15] = [
     http::header::HOST,
     http::header::CONTENT_LENGTH,
     http::header::CONTENT_TYPE,
@@ -68,6 +68,10 @@ const HEADER_NAMES : [http::header::HeaderName; 11] = [
     http::header::UPGRADE,
     http::header::CONNECTION,
     http::header::DNT,
+    http::header::CACHE_CONTROL,
+    http::header::DATE,
+    http::header::EXPIRES,
+    http::header::SERVER,
 ];
 
 #[derive(Debug,Clone,Eq,PartialEq)]
@@ -121,7 +125,7 @@ pub struct HeaderValueStrategy;
 #[derive(Debug,Clone)]
 pub struct HeaderValueValueTree(IndexValueTree);
 
-const HEADER_VALUES : [&'static str; 22] = [
+const HEADER_VALUES : [&'static str; 30] = [
     "",
     "0",
     "1",
@@ -130,17 +134,25 @@ const HEADER_VALUES : [&'static str; 22] = [
     "%",
     "\"\"",
     "%D1%89",
+    "100000",
     "\"%D1%89\"",
     "\\r\\n",
     "deflate",
-    "close",
-    "keep-alive",
-    "example.com",
-    "example.com:1234",
     "localhost",
-    "en-GB,en;q=0.5",
+    "close",
     "en-GB",
     "text/html",
+    "keep-alive",
+    "websocket",
+    "example.com",
+    "example.com:1234",
+    "max-age=604800",
+    "en-GB,en;q=0.5",
+    "Accept-Encoding",
+    "EOS (vny006/0453)",
+    "Thu, 20 Jun 2019 21:06:20 GMT",
+    "text/html; charset=UTF-8",
+    "999999999999999999999999999999999999999999999999999999",
     "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "_xsrf=2|8bea5404|5ef47a59a0516e67bbd5f86849e28a1c|1553532280",
     "Mozilla/5.0 (X11; Linux i686 on x86_64; rv:52.1) Gecko/20100101 Firefox/52.1",

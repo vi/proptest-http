@@ -16,7 +16,10 @@ pub mod uri;
 pub use uri::ArbitraryUri;
 
 pub mod request;
-pub use request::ArbitraryRequest;
+pub use request::{ArbitraryRequest,ArbitraryMethod};
 
 pub mod header;
 pub use header::{ArbitraryHeaderName,ArbitraryHeaderValue,ArbitraryHeaderMap};
+
+pub mod response;
+pub use response::{ArbitraryResponse,ArbitraryStatusCode};
