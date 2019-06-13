@@ -9,6 +9,10 @@ use proptest::test_runner::TestRunner;
 use proptest::prelude::RngCore;
 use proptest::sample::{Index,IndexValueTree};
 use proptest::bool::{weighted,BoolValueTree};
+use proptest::tuple::TupleValueTree;
 
 pub mod uri;
 pub use uri::ArbitraryUri;
+
+pub mod request;
+pub use request::ArbitraryRequest;

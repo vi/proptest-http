@@ -5,9 +5,19 @@ use super::*;
 /// a lot of tricky cases that are not considered
 #[derive(Debug,PartialEq,Eq,Clone)]
 pub struct ArbitraryUri(pub http::Uri);
-
-#[derive(Debug)]
+#[derive(Debug,Clone,Copy)]
 pub struct UriStrategy;
+#[derive(Debug,Clone)]
+pub struct UriValueTree {
+    pub with_schema_and_host: BoolValueTree,
+    pub schema: IndexValueTree,
+    pub authority: IndexValueTree,
+    pub host: IndexValueTree,
+    pub path: IndexValueTree,
+    pub query: IndexValueTree,
+
+    pub whose_turn: usize,
+}
 
 const SCHEMAS : [&str;2] = [
     "http://",
@@ -70,16 +80,6 @@ const QUERIES : [&str; 9] = [
     "?q=http%253A%252F%252F%255B%253A%253A1%255D%253A123%252F%253Fqw%253D3%2526q%253D1%25231v&",
 ];
 
-pub struct UriValueTree {
-    pub with_schema_and_host: BoolValueTree,
-    pub schema: IndexValueTree,
-    pub authority: IndexValueTree,
-    pub host: IndexValueTree,
-    pub path: IndexValueTree,
-    pub query: IndexValueTree,
-
-    pub whose_turn: usize,
-}
 
 
 impl Arbitrary for ArbitraryUri {
