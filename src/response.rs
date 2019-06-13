@@ -2,15 +2,12 @@ use super::*;
 
 #[derive(Debug)]
 pub struct ArbitraryResponse(pub http::response::Response<()>);
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct ResponseStrategy;
-#[derive(Debug,Clone)]
-pub struct ResponseValueTree ( TupleValueTree <(
-    StatusCodeValueTree,
-    super::header::HeaderMapValueTree,
-)>);
-
-
+#[derive(Debug, Clone)]
+pub struct ResponseValueTree(
+    TupleValueTree<(StatusCodeValueTree, super::header::HeaderMapValueTree)>,
+);
 
 impl Arbitrary for ArbitraryResponse {
     type Strategy = ResponseStrategy;
@@ -26,10 +23,7 @@ impl Strategy for ResponseStrategy {
 
     fn new_tree(&self, runner: &mut TestRunner) -> NewTree<Self> {
         Ok(ResponseValueTree(
-            <(
-                ArbitraryStatusCode,
-                ArbitraryHeaderMap,
-            )>::arbitrary().new_tree(runner)?
+            <(ArbitraryStatusCode, ArbitraryHeaderMap)>::arbitrary().new_tree(runner)?,
         ))
     }
 }
@@ -38,10 +32,7 @@ impl ValueTree for ResponseValueTree {
 
     fn current(&self) -> Self::Value {
         let mut b = http::response::Builder::default();
-        let (
-            ArbitraryStatusCode(s),
-            ArbitraryHeaderMap(h),
-        ) = self.0.current();
+        let (ArbitraryStatusCode(s), ArbitraryHeaderMap(h)) = self.0.current();
         b.status(s);
         *b.headers_mut().unwrap() = h;
         ArbitraryResponse(b.body(()).unwrap())
@@ -58,15 +49,14 @@ impl ValueTree for ResponseValueTree {
 
 //-----------------------------
 
-#[derive(Debug,Eq,PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct ArbitraryStatusCode(pub http::status::StatusCode);
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct StatusCodeStrategy;
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct StatusCodeValueTree(IndexValueTree);
 
-
-const STATUS_CODES : [http::status::StatusCode; 14] = [
+const STATUS_CODES: [http::status::StatusCode; 14] = [
     http::StatusCode::OK,
     http::StatusCode::NOT_FOUND,
     http::StatusCode::FORBIDDEN,
@@ -80,7 +70,7 @@ const STATUS_CODES : [http::status::StatusCode; 14] = [
     http::StatusCode::NOT_IMPLEMENTED,
     http::StatusCode::GATEWAY_TIMEOUT,
     http::StatusCode::LOOP_DETECTED,
-    http::StatusCode::NETWORK_AUTHENTICATION_REQUIRED ,
+    http::StatusCode::NETWORK_AUTHENTICATION_REQUIRED,
 ];
 
 impl Arbitrary for ArbitraryStatusCode {
@@ -96,16 +86,14 @@ impl Strategy for StatusCodeStrategy {
     type Value = ArbitraryStatusCode;
 
     fn new_tree(&self, runner: &mut TestRunner) -> NewTree<Self> {
-       Ok(StatusCodeValueTree(
-           Index::arbitrary().new_tree(runner)?
-       ))
+        Ok(StatusCodeValueTree(Index::arbitrary().new_tree(runner)?))
     }
 }
 impl ValueTree for StatusCodeValueTree {
     type Value = ArbitraryStatusCode;
 
     fn current(&self) -> Self::Value {
-       ArbitraryStatusCode(self.0.current().get(&STATUS_CODES).clone())
+        ArbitraryStatusCode(*self.0.current().get(&STATUS_CODES))
     }
 
     fn simplify(&mut self) -> bool {

@@ -3,11 +3,11 @@ use super::*;
 /// Wrapper that generates random-ish `Uri` instances.
 /// Not that URI generation is rather basic. There probably
 /// a lot of tricky cases that are not considered
-#[derive(Debug,PartialEq,Eq,Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ArbitraryUri(pub http::Uri);
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct UriStrategy;
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct UriValueTree {
     pub with_schema_and_host: BoolValueTree,
     pub schema: IndexValueTree,
@@ -19,10 +19,7 @@ pub struct UriValueTree {
     pub whose_turn: usize,
 }
 
-const SCHEMAS : [&str;2] = [
-    "http://",
-    "https://",
-];
+const SCHEMAS: [&str; 2] = ["http://", "https://"];
 
 const AUTHS : [&str;16] = [
     "",
@@ -43,7 +40,7 @@ const AUTHS : [&str;16] = [
     "7:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@",
 ];
 
-const HOSTS : [&str;10] = [
+const HOSTS: [&str; 10] = [
     "localhost",
     "127.0.0.1",
     "localhost:8080",
@@ -80,8 +77,6 @@ const QUERIES : [&str; 9] = [
     "?q=http%253A%252F%252F%255B%253A%253A1%255D%253A123%252F%253Fqw%253D3%2526q%253D1%25231v&",
 ];
 
-
-
 impl Arbitrary for ArbitraryUri {
     type Parameters = ();
     type Strategy = UriStrategy;
@@ -97,13 +92,13 @@ impl Strategy for UriStrategy {
 
     fn new_tree(&self, runner: &mut TestRunner) -> NewTree<Self> {
         Ok(UriValueTree {
-            with_schema_and_host : weighted(0.95).new_tree(runner)?,
-            schema:    Index::arbitrary().new_tree(runner)?,
+            with_schema_and_host: weighted(0.95).new_tree(runner)?,
+            schema: Index::arbitrary().new_tree(runner)?,
             authority: Index::arbitrary().new_tree(runner)?,
-            host:      Index::arbitrary().new_tree(runner)?,
-            path:      Index::arbitrary().new_tree(runner)?,
-            query:     Index::arbitrary().new_tree(runner)?,
-            whose_turn : 1,
+            host: Index::arbitrary().new_tree(runner)?,
+            path: Index::arbitrary().new_tree(runner)?,
+            query: Index::arbitrary().new_tree(runner)?,
+            whose_turn: 1,
         })
     }
 }
@@ -124,7 +119,7 @@ impl ValueTree for UriValueTree {
         s += *self.query.current().get(&QUERIES[..]);
 
         //eprintln!("Q: {}", s);
-        let uri : http::uri::Uri = s.parse().unwrap();
+        let uri: http::uri::Uri = s.parse().unwrap();
         ArbitraryUri(uri)
     }
 
@@ -133,7 +128,7 @@ impl ValueTree for UriValueTree {
         loop {
             if self.simplify1() {
                 self.advance_turn();
-                return true
+                return true;
             } else {
                 self.advance_turn();
                 ctr += 1;

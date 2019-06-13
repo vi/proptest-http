@@ -1,18 +1,13 @@
 use super::*;
 
-
-#[derive(Debug,Clone,Eq,PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct ArbitraryHeaderMap(pub http::header::HeaderMap);
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct HeaderMapStrategy;
-#[derive(Debug,Clone)]
-pub struct HeaderMapValueTree(VecValueTree<
-    TupleValueTree<(
-        HeaderNameValueTree,
-        HeaderValueValueTree,
-    )>
->);
-
+#[derive(Debug, Clone)]
+pub struct HeaderMapValueTree(
+    VecValueTree<TupleValueTree<(HeaderNameValueTree, HeaderValueValueTree)>>,
+);
 
 impl Arbitrary for ArbitraryHeaderMap {
     type Strategy = HeaderMapStrategy;
@@ -27,9 +22,9 @@ impl Strategy for HeaderMapStrategy {
     type Value = ArbitraryHeaderMap;
 
     fn new_tree(&self, runner: &mut TestRunner) -> NewTree<Self> {
-       Ok(HeaderMapValueTree(
-           Vec::<(ArbitraryHeaderName,ArbitraryHeaderValue)>::arbitrary().new_tree(runner)?
-       ))
+        Ok(HeaderMapValueTree(
+            Vec::<(ArbitraryHeaderName, ArbitraryHeaderValue)>::arbitrary().new_tree(runner)?,
+        ))
     }
 }
 impl ValueTree for HeaderMapValueTree {
@@ -38,7 +33,7 @@ impl ValueTree for HeaderMapValueTree {
     fn current(&self) -> Self::Value {
         let q = self.0.current();
         let mut hm = http::header::HeaderMap::with_capacity(q.len());
-        for (n,v) in q {
+        for (n, v) in q {
             hm.insert(n.0, v.0);
         }
         ArbitraryHeaderMap(hm)
@@ -53,10 +48,9 @@ impl ValueTree for HeaderMapValueTree {
     }
 }
 
-
 // ----------------------------
 
-const HEADER_NAMES : [http::header::HeaderName; 15] = [
+static HEADER_NAMES: [http::header::HeaderName; 15] = [
     http::header::HOST,
     http::header::CONTENT_LENGTH,
     http::header::CONTENT_TYPE,
@@ -74,11 +68,11 @@ const HEADER_NAMES : [http::header::HeaderName; 15] = [
     http::header::SERVER,
 ];
 
-#[derive(Debug,Clone,Eq,PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct ArbitraryHeaderName(pub http::header::HeaderName);
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct HeaderNameStrategy;
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct HeaderNameValueTree(IndexValueTree);
 
 impl Arbitrary for ArbitraryHeaderName {
@@ -94,16 +88,14 @@ impl Strategy for HeaderNameStrategy {
     type Value = ArbitraryHeaderName;
 
     fn new_tree(&self, runner: &mut TestRunner) -> NewTree<Self> {
-       Ok(HeaderNameValueTree(
-           Index::arbitrary().new_tree(runner)?
-       ))
+        Ok(HeaderNameValueTree(Index::arbitrary().new_tree(runner)?))
     }
 }
 impl ValueTree for HeaderNameValueTree {
     type Value = ArbitraryHeaderName;
 
     fn current(&self) -> Self::Value {
-       ArbitraryHeaderName(self.0.current().get(&HEADER_NAMES).clone())
+        ArbitraryHeaderName(self.0.current().get(&HEADER_NAMES).clone())
     }
 
     fn simplify(&mut self) -> bool {
@@ -117,15 +109,14 @@ impl ValueTree for HeaderNameValueTree {
 
 // -------------------
 
-
-#[derive(Debug,Clone,Eq,PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct ArbitraryHeaderValue(pub http::header::HeaderValue);
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct HeaderValueStrategy;
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct HeaderValueValueTree(IndexValueTree);
 
-const HEADER_VALUES : [&'static str; 30] = [
+const HEADER_VALUES: [&str; 30] = [
     "",
     "0",
     "1",
@@ -171,20 +162,16 @@ impl Strategy for HeaderValueStrategy {
     type Value = ArbitraryHeaderValue;
 
     fn new_tree(&self, runner: &mut TestRunner) -> NewTree<Self> {
-       Ok(HeaderValueValueTree(
-           Index::arbitrary().new_tree(runner)?
-       ))
+        Ok(HeaderValueValueTree(Index::arbitrary().new_tree(runner)?))
     }
 }
 impl ValueTree for HeaderValueValueTree {
     type Value = ArbitraryHeaderValue;
 
     fn current(&self) -> Self::Value {
-        ArbitraryHeaderValue(
-            http::header::HeaderValue::from_static(
-               &self.0.current().get(&HEADER_VALUES)
-            )
-        )
+        ArbitraryHeaderValue(http::header::HeaderValue::from_static(
+            &self.0.current().get(&HEADER_VALUES),
+        ))
     }
 
     fn simplify(&mut self) -> bool {

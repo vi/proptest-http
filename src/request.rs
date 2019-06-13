@@ -2,16 +2,16 @@ use super::*;
 
 #[derive(Debug)]
 pub struct ArbitraryRequest(pub http::request::Request<()>);
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct RequestStrategy;
-#[derive(Debug,Clone)]
-pub struct RequestValueTree ( TupleValueTree <(
-    super::uri::UriValueTree,
-    MethodValueTree,
-    super::header::HeaderMapValueTree,
-)>);
-
-
+#[derive(Debug, Clone)]
+pub struct RequestValueTree(
+    TupleValueTree<(
+        super::uri::UriValueTree,
+        MethodValueTree,
+        super::header::HeaderMapValueTree,
+    )>,
+);
 
 impl Arbitrary for ArbitraryRequest {
     type Strategy = RequestStrategy;
@@ -27,11 +27,7 @@ impl Strategy for RequestStrategy {
 
     fn new_tree(&self, runner: &mut TestRunner) -> NewTree<Self> {
         Ok(RequestValueTree(
-            <(
-                ArbitraryUri,
-                ArbitraryMethod,
-                ArbitraryHeaderMap,
-            )>::arbitrary().new_tree(runner)?
+            <(ArbitraryUri, ArbitraryMethod, ArbitraryHeaderMap)>::arbitrary().new_tree(runner)?,
         ))
     }
 }
@@ -40,11 +36,7 @@ impl ValueTree for RequestValueTree {
 
     fn current(&self) -> Self::Value {
         let mut b = http::request::Builder::default();
-        let (
-            ArbitraryUri(u),
-            ArbitraryMethod(m),
-            ArbitraryHeaderMap(h),
-        ) = self.0.current();
+        let (ArbitraryUri(u), ArbitraryMethod(m), ArbitraryHeaderMap(h)) = self.0.current();
         b.uri(u);
         b.method(m);
         *b.headers_mut().unwrap() = h;
@@ -62,15 +54,14 @@ impl ValueTree for RequestValueTree {
 
 //-----------------------------
 
-#[derive(Debug,Eq,PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct ArbitraryMethod(pub http::method::Method);
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct MethodStrategy;
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct MethodValueTree(IndexValueTree);
 
-
-const METHODS : [http::Method; 5] = [
+const METHODS: [http::Method; 5] = [
     http::method::Method::GET,
     http::method::Method::POST,
     http::method::Method::PUT,
@@ -91,16 +82,14 @@ impl Strategy for MethodStrategy {
     type Value = ArbitraryMethod;
 
     fn new_tree(&self, runner: &mut TestRunner) -> NewTree<Self> {
-       Ok(MethodValueTree(
-           Index::arbitrary().new_tree(runner)?
-       ))
+        Ok(MethodValueTree(Index::arbitrary().new_tree(runner)?))
     }
 }
 impl ValueTree for MethodValueTree {
     type Value = ArbitraryMethod;
 
     fn current(&self) -> Self::Value {
-       ArbitraryMethod(self.0.current().get(&METHODS).clone())
+        ArbitraryMethod(self.0.current().get(&METHODS).clone())
     }
 
     fn simplify(&mut self) -> bool {
